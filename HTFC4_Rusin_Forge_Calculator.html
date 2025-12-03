@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TerraFirmaCraft Forging Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #7d66a3 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgb(227, 220, 248);
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+       
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        
+        .card h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .recipe-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .recipe-value {
+            font-weight: bold;
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: white;
+        }
+        
+        .positive { background: #27ae60; }
+        .negative { background: #e74c3c; }
+        
+        .solution {
+            grid-column: 1 / -1;
+            margin-top: 20px;
+        }
+        
+        .step {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .final-step {
+            border-left-color: #e74c3c;
+            background: #fff5f5;
+        }
+        
+        .step-number {
+            background: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .final-step .step-number {
+            background: #e74c3c;
+        }
+        
+        
+
+        .custom-recipe {
+            background: #e8f4fd;
+            border: 1px solid #bee5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .custom-recipe h3 {
+            color: #0c5460;
+            margin-bottom: 15px;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .action-btn {
+            padding: 15px 10px;
+            background: white;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 12px;
+            margin: 0;
+            width: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 60px;
+        }
+
+        .action-btn:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+
+        .action-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .action-icon img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .sequence-builder {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            min-height: 50px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px dashed #dee2e6;
+            align-items: center;
+        }
+
+        .sequence-item {
+            background: #667eea;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sequence-item .action-icon {
+            width: 16px;
+            height: 16px;
+            font-size: 14px;
+        }
+
+        .sequence-item .action-icon img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .remove-btn {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            color: white;
+            font-size: 12px;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .multiplier {
+            background: #34495e;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 12px;
+            margin-left: 5px;
+        }
+
+        .custom-recipe-btn {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            padding-left: 15px;
+        }
+
+        .recipe-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+        }
+
+        .recipe-list option {
+            padding: 8px 12px;
+            background: white;
+            color: #333;
+        }
+
+        .recipe-list option:hover {
+            background: #f8f9fa;
+        }
+
+        .recipe-list option:checked {
+            background: #667eea;
+            color: white;
+        }
+
+        .recipe-icon {
+            width: 16px;
+            height: 16px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 8px;
+        }
+
+        .recipe-icon img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+        }
+
+        .final-sequence-display .action-icon {
+            width: 16px;
+            height: 16px;
+            font-size: 14px;
+        }
+
+        .final-sequence-display .action-icon img {
+            width: 16px;
+            height: 16px;
+        }
+
+        .help-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+
+        .help-section h4 {
+            margin-bottom: 10px;
+            color: #856404;
+        }
+
+        .help-section ul {
+            margin-left: 20px;
+        }
+
+        .help-section li {
+            margin-bottom: 5px;
+        }
+
+      
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+                margin-bottom: 15px;
+            }
+            
+            
+            
+            .action-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            .action-btn {
+                min-height: 50px;
+                padding: 10px 5px;
+            }
+            
+            .step {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                padding: 12px;
+            }
+            
+            .step > div:first-child {
+                width: 100%;
+            }
+            
+            .step > div:last-child {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .recipe-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .recipe-item > span:last-child {
+                align-self: flex-end;
+            }
+            
+            .sequence-item {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            select, input {
+                padding: 10px;
+                font-size: 16px; 
+            }
+            
+            button {
+                padding: 12px;
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .action-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            
+            .card {
+                padding: 15px;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            
+            
+            <h1>Hardrock TerraFirmaCraft 4 Forging Calculator</h1>
+            <p>Calculates the most optimal action sequence for forging with HTFC4 in mind.</p>
+			Please use a resource pack to show numbers.
+        </div>
+        
+        <div class="content">
+            <div class="card">
+                <h2>Forging Settings</h2>
+                
+                <div class="help-section">
+                    <h4>How to use:</h4>
+                    <ul>
+                        <li>Select an item to forge from the list</li>
+                        <li>Enter the target value (red pointer position in game)</li>
+                        <li>Click "Find solution" to get the sequence</li>
+                        <li>Or create a custom recipe with your own sequence</li>
+                    </ul>
+                </div>
+                
+                <button class="custom-recipe-btn" onclick="openCustomRecipe()">Create Custom Recipe</button>
+                
+                <div class="form-group">
+                    <label for="item">Select item:</label>
+                    <div class="search-box">
+                        <input type="text" id="search" class="search-input" placeholder="Search recipes..." oninput="filterRecipes()">
+                    </div>
+                    <select id="item" onchange="loadRecipe()" size="6" class="recipe-list">
+                        <option value="">Choose item to forge</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="target">Target value (red pointer):</label>
+                    <input type="number" id="target" placeholder="Enter target value">
+                </div>
+                
+                <button onclick="findSolution()">Find solution</button>
+            </div>
+
+            <div class="card" id="custom-recipe-card" style="display: none;">
+                <h2>Create Recipe</h2>
+                
+                <div class="custom-recipe">
+                    <h3>Click actions to add:</h3>
+                    <div class="action-grid" id="action-grid"></div>
+                    
+                    <h3>Final sequence:</h3>
+                    <div class="sequence-builder" id="sequence-builder">
+                        <span style="color: #999; font-style: italic;">Click actions above to build sequence</span>
+                    </div>
+                    
+                    <button onclick="clearSequence()" style="background: #e74c3c;">Clear sequence</button>
+                    <button onclick="closeCustomRecipe()" style="background: #95a5a6;">Close</button>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Current Recipe</h2>
+                <div id="recipe-container">
+                    <p style="text-align: center; color: #666; padding: 40px;">
+                        Select item to display recipe
+                    </p>
+                </div>
+            </div>
+            
+            <div class="card solution" id="solution-card" style="display: none;">
+                <h2>Solution</h2>
+                <div id="solution-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            en: {
+                title: "Hardrock TerraFirmaCraft 4 Forging Calculator",
+                subtitle: "Calculates the most optimal action sequence for forging with HTFC4 in mind.",
+                settings: "Forging Settings",
+                howToUse: "How to use:",
+                helpSteps: [
+                    "Select an item to forge from the list",
+                    "Enter the target value (red pointer position in game)",
+                    "Click \"Find solution\" to get the sequence",
+                    "Or create a custom recipe with your own sequence"
+                ],
+                createCustomRecipe: "Create Custom Recipe",
+                selectItem: "Select item:",
+                searchPlaceholder: "Search recipes...",
+                selectItemPlaceholder: "Choose item to forge",
+                targetValue: "Target value (red pointer):",
+                targetPlaceholder: "Enter target value",
+                findSolution: "Find solution",
+                currentRecipe: "Current Recipe",
+                createRecipe: "Create Recipe",
+                clickActions: "Click actions to add:",
+                finalSequence: "Final sequence:",
+                clickToBuild: "Click actions above to build sequence",
+                clearSequence: "Clear sequence",
+                close: "Close",
+                selectItemFirst: "Select item to display recipe",
+                solution: "Solution",
+                noSolution: "Solution not found. Try different target value.",
+                stepsCount: "Steps count:",
+                calculatedTarget: "Calculated target:",
+                fillAllFields: "Fill all fields!",
+                addFinalActions: "Add final actions!",
+                calculation: "Calculation:",
+                finalActions: "Final actions:",
+                target: "Target:",
+                final: "final",
+                actions: {
+                    light: "Light Hit",
+                    medium: "Medium Hit",
+                    hard: "Hard Hit", 
+                    draw: "Draw",
+                    punch: "Punch",
+                    bend: "Bend",
+                    upset: "Upset",
+                    shrink: "Shrink"
+                },
+                items: {
+                    pickaxe: "Pickaxe Head",
+                    axe: "Axe Head",
+                    sword: "Sword Blade",
+                    shovel: "Shovel Head",
+                    hoe: "Hoe Head",
+                    knife: "Knife Blade",
+                    scythe: "Scythe Blade",
+                    hammer: "Hammer Head",
+                    chisel: "Chisel Head",
+                    saw: "Saw Blade",
+                    propick: "Propick Head",
+                    mace: "Mace Head",
+                    javelin: "Javelin Head",
+                    sheet: "Sheet",
+                    hook: "Fish Hook",
+                    lamp: "Unfinished Lamp",
+                    rod: "Rod",
+                    chain: "Chain",
+                    bars_8_or_16: "Bars(8/16)",
+                    boots: "Unfinished Boots",
+                    helmet: "Unfinished Helmet",
+                    chestplate: "Unfinished Chestplate",
+                    greaves: "Unfinished Greaves",
+                    shield: "Shield",
+                    tuyere: "Tuyere",
+                    trapdoor: "Trapdoor",
+					stamen: "Stamen",
+					arrow: "Arrow head",
+					bolt: "Bolt",
+					ring: "Ring",
+					nail: "Nail",
+					rivet: "Rivet",
+					screw: "Screw",
+					crossguard: "Crossguard",
+					meat: "Meat hook",
+					wire: "Wire",
+					spindle: "Spindle",
+					mechanism: "Mechanism",
+					tong: "Tong",
+					gear: "Gear",
+					kettle: "Kettle",
+					sprinkler: "Sprinkler",
+					pipe1: "Fluid Pipe Create",
+					pipe2: "Pipe Firmalife",
+					foil: "Foil",
+					diehold: "Die Holder",
+					stamphold: "Stamp Holder",
+					flask: "Unfinished Iron Flask",
+					
+                }
+            },
+        };
+
+        const ACTIONS_ICONS = {
+            light: "images/light.png",
+            medium: "images/medium.png", 
+            hard: "images/hard.png",
+            draw: "images/draw.png",
+            punch: "images/punch.png",
+            bend: "images/bend.png",
+            upset: "images/upset.png",
+            shrink: "images/shrink.png"
+        };
+
+        const BASE_ACTIONS = {
+            light: -3, medium: -6, hard: -9, draw: -15,
+            punch: 2, bend: 7, upset: 13, shrink: 16
+        };
+
+        const RECIPES = {
+            pickaxe: {
+                finalSequence: ['draw', 'bend', 'punch'],
+                actions: BASE_ACTIONS
+            },
+            axe: {
+                finalSequence: ['upset', 'light', 'punch'],
+                actions: BASE_ACTIONS
+            },
+            sword: {
+                finalSequence: ['bend', 'bend', 'light'],
+                actions: BASE_ACTIONS
+            },
+            shovel: {
+                finalSequence: ['light', 'punch'],
+                actions: BASE_ACTIONS
+            },
+            hoe: {
+                finalSequence: ['bend', 'light', 'punch'],
+                actions: BASE_ACTIONS
+            },
+            knife: {
+                finalSequence: ['draw', 'draw', 'light'],
+                actions: BASE_ACTIONS
+            },
+            scythe: {
+                finalSequence: ['bend', 'draw', 'light'],
+                actions: BASE_ACTIONS
+            },
+            hammer: {
+                finalSequence: ['shrink', 'punch'],
+                actions: BASE_ACTIONS
+            },
+            chisel: {
+                finalSequence: ['draw', 'light', 'light'],
+                actions: BASE_ACTIONS
+            },
+            saw: {
+                finalSequence: ['light', 'light'],
+                actions: BASE_ACTIONS
+            },
+            propick: {
+                finalSequence: ['bend', 'draw', 'punch'],
+                actions: BASE_ACTIONS
+            },
+            mace: {
+                finalSequence: ['bend', 'shrink', 'light'],
+                actions: BASE_ACTIONS
+            },
+            javelin: {
+                finalSequence: ['draw', 'light', 'light'],
+                actions: BASE_ACTIONS
+            },
+            sheet: {
+                finalSequence: ['light', 'light', 'light'],
+                actions: BASE_ACTIONS
+            },
+            hook: {
+                finalSequence: ['light', 'bend', 'draw', 'light'],
+                actions: BASE_ACTIONS
+            },
+            lamp: {
+                finalSequence: ['draw', 'bend', 'bend'],
+                actions: BASE_ACTIONS
+            },
+            rod: {
+                finalSequence: ['draw', 'draw', 'bend'],
+                actions: BASE_ACTIONS
+            },
+            chain: {
+                finalSequence: ['light', 'light', 'draw'],
+                actions: BASE_ACTIONS
+            },
+            bars_8_or_16: {
+                finalSequence: ['punch', 'punch', 'upset'],
+                actions: BASE_ACTIONS
+            },
+            boots: {
+                finalSequence: ['shrink', 'bend', 'bend'],
+                actions: BASE_ACTIONS
+            },
+            helmet: {
+                finalSequence: ['bend', 'bend', 'light'],
+                actions: BASE_ACTIONS
+            },
+            chestplate: {
+                finalSequence: ['upset', 'light', 'light'],
+                actions: BASE_ACTIONS
+            },
+            greaves: {
+                finalSequence: ['light', 'draw', 'bend'],
+                actions: BASE_ACTIONS
+            },
+            shield: {
+                finalSequence: ['bend', 'bend', 'upset'],
+                actions: BASE_ACTIONS
+            },
+            tuyere: {
+                finalSequence: ['bend', 'bend'],
+                actions: BASE_ACTIONS
+            },
+            trapdoor: {
+                finalSequence: ['draw', 'draw', 'bend'],
+                actions: BASE_ACTIONS
+            },
+			stamen: {
+                finalSequence: ['bend', 'draw', 'draw'],
+                actions: BASE_ACTIONS
+            },
+			arrow: {
+				finalSequence: ['draw', 'draw', 'bend'],
+                actions: BASE_ACTIONS
+			 },	
+			
+			bolt: {
+				finalSequence: ['light', 'light', 'light'],
+                actions: BASE_ACTIONS
+			 },	
+			 
+			ring: {
+				finalSequence: ['draw', 'draw', 'light'],
+                actions: BASE_ACTIONS
+			 },	
+			
+			nail: {
+				finalSequence: ['bend', 'light', 'punch'],
+                actions: BASE_ACTIONS
+			 },	
+			
+			rivet: {
+				finalSequence: ['light', 'bend', 'draw'],
+                actions: BASE_ACTIONS
+			 },	
+			
+			screw: {
+				finalSequence: ['draw', 'light', 'light'],
+                actions: BASE_ACTIONS
+			 },	
+			 
+			crossguard: {
+				finalSequence: ['draw', 'draw', 'bend'],
+                actions: BASE_ACTIONS
+			 },	
+			meat: {
+				finalSequence: ['bend', 'light', 'punch'],
+                actions: BASE_ACTIONS
+			 },	
+			wire: {
+				finalSequence: ['draw', 'draw', 'bend'],
+                actions: BASE_ACTIONS
+			 },	
+			
+			spindle: {
+				finalSequence: ['upset', 'light', 'punch'],
+                actions: BASE_ACTIONS
+			 },	
+			
+			mechanism: {
+				finalSequence: ['punch', 'light', 'punch'],
+                actions: BASE_ACTIONS
+			 },	
+			
+			tong: {
+				finalSequence: ['bend', 'draw', 'light'],
+                actions: BASE_ACTIONS
+			 },	
+			 
+			 gear: {
+				finalSequence: ['upset', 'light', 'punch'],
+                actions: BASE_ACTIONS
+			 },	
+			 
+			 kettle: {
+				finalSequence: ['bend', 'bend'],
+                actions: BASE_ACTIONS
+			 },	
+			 
+			 sprinkler: {
+				finalSequence: ['punch', 'light', 'light'],
+                actions: BASE_ACTIONS
+			 },	
+			 
+			 pipe1: {
+				finalSequence: ['bend', 'light', 'punch'],
+                actions: BASE_ACTIONS
+			 },	
+			 
+			 pipe2: {
+				finalSequence: ['bend', 'draw'],
+                actions: BASE_ACTIONS
+			 },	
+			 
+			 foil: {
+				finalSequence: ['light', 'light', 'light'],
+                actions: BASE_ACTIONS
+			 },	
+			 
+			 diehold: {
+				finalSequence: ['punch', 'punch'],
+                actions: BASE_ACTIONS
+			 },	
+			
+			stamphold: {
+				finalSequence: ['bend', 'bend', 'light'],
+                actions: BASE_ACTIONS
+			 },	
+			 
+			flask: {
+				finalSequence: ['bend', 'bend', 'punch'],
+                actions: BASE_ACTIONS
+			 },	
+        };
+
+        let currentLang = 'en';
+        let currentRecipe = {};
+        let customSequence = [];
+        let allRecipeOptions = [];
+
+        
+
+        function updateInterface() {
+            const t = translations[currentLang];
+            
+            document.querySelector('.header h1').textContent = t.title;
+            document.querySelector('.header p').textContent = t.subtitle;
+            
+            const cardHeaders = document.querySelectorAll('.card h2');
+            if (cardHeaders[0]) cardHeaders[0].textContent = t.settings;
+            if (cardHeaders[1]) cardHeaders[1].textContent = t.createRecipe;
+            if (cardHeaders[2]) cardHeaders[2].textContent = t.currentRecipe;
+            if (cardHeaders[3]) cardHeaders[3].textContent = t.solution;
+            
+            const helpSection = document.querySelector('.help-section h4');
+            if (helpSection) helpSection.textContent = t.howToUse;
+            const helpList = document.querySelector('.help-section ul');
+            if (helpList) {
+                helpList.innerHTML = '';
+                t.helpSteps.forEach(step => {
+                    const li = document.createElement('li');
+                    li.textContent = step;
+                    helpList.appendChild(li);
+                });
+            }
+            
+            const customRecipeBtn = document.querySelector('.custom-recipe-btn');
+            if (customRecipeBtn) customRecipeBtn.textContent = t.createCustomRecipe;
+            
+            const itemLabel = document.querySelector('label[for="item"]');
+            if (itemLabel) itemLabel.textContent = t.selectItem;
+            
+            const searchInput = document.getElementById('search');
+            if (searchInput) searchInput.placeholder = t.searchPlaceholder;
+            
+            const targetLabel = document.querySelector('label[for="target"]');
+            if (targetLabel) targetLabel.textContent = t.targetValue;
+            
+            const targetInput = document.getElementById('target');
+            if (targetInput) targetInput.placeholder = t.targetPlaceholder;
+            
+            const findSolutionBtn = document.querySelector('button[onclick="findSolution()"]');
+            if (findSolutionBtn) findSolutionBtn.textContent = t.findSolution;
+
+            const recipeContainer = document.getElementById('recipe-container');
+            if (recipeContainer && Object.keys(currentRecipe).length === 0) {
+                recipeContainer.innerHTML = `
+                    <p style="text-align: center; color: #666; padding: 40px;">
+                        ${t.selectItemFirst}
+                    </p>
+                `;
+            }
+            
+            updateItemSelect();
+            updateActionGrid();
+            updateCustomRecipeInterface();
+            if (Object.keys(currentRecipe).length > 0) displayRecipe();
+            updateSequenceBuilder();
+            
+            const solutionCard = document.getElementById('solution-card');
+            if (solutionCard && solutionCard.style.display !== 'none') {
+                updateExistingSolution();
+            }
+        }
+
+        function updateExistingSolution() {
+            const solutionContainer = document.getElementById('solution-container');
+            if (!solutionContainer || solutionContainer.children.length === 0) return;
+            
+            const t = translations[currentLang];
+
+            const calcInfo = solutionContainer.querySelector('div[style*="background: #e8f4fd"]');
+            if (calcInfo) {
+                const strongText = calcInfo.querySelector('strong');
+                if (strongText) {
+                    const content = calcInfo.innerHTML;
+                    const newContent = content
+                        .replace(/Calculation:|Расчет:/, t.calculation)
+                        .replace(/Final actions|Финальные действия/, t.finalActions)
+                        .replace(/Target:|Цель:/, t.target);
+                    calcInfo.innerHTML = newContent;
+                }
+            }
+            
+            const infoDiv = solutionContainer.children[1];
+            if (infoDiv && infoDiv.tagName === 'DIV') {
+                const paragraphs = infoDiv.querySelectorAll('p');
+                if (paragraphs[0]) {
+                    const stepsText = paragraphs[0].innerHTML;
+                    paragraphs[0].innerHTML = stepsText.replace(/Steps count:|Количество шагов:/, `<strong>${t.stepsCount}</strong>`);
+                }
+                if (paragraphs[1]) {
+                    const targetText = paragraphs[1].innerHTML;
+                    paragraphs[1].innerHTML = targetText.replace(/Calculated target:|Вычисленная цель:/, `<strong>${t.calculatedTarget}</strong>`);
+                }
+            }
+
+            const steps = solutionContainer.querySelectorAll('.step');
+            steps.forEach(step => {
+                const actionSpan = step.querySelector('span:not(.multiplier):not(.recipe-value)');
+                if (actionSpan) {
+                    const text = actionSpan.textContent;
+                    const multiplierMatch = text.match(/×\d+/);
+                    const multiplier = multiplierMatch ? multiplierMatch[0] : '';
+
+                    let actionType = '';
+                    if (text.includes('Light') || text.includes('Слабо')) actionType = 'light';
+                    else if (text.includes('Medium') || text.includes('Средне')) actionType = 'medium';
+                    else if (text.includes('Hard') || text.includes('Сильно')) actionType = 'hard';
+                    else if (text.includes('Draw') || text.includes('Протянуть')) actionType = 'draw';
+                    else if (text.includes('Punch') || text.includes('Штамповать')) actionType = 'punch';
+                    else if (text.includes('Bend') || text.includes('Изогнуть')) actionType = 'bend';
+                    else if (text.includes('Upset') || text.includes('Обжать')) actionType = 'upset';
+                    else if (text.includes('Shrink') || text.includes('Усадить')) actionType = 'shrink';
+                    
+                    if (actionType && t.actions[actionType]) {
+                        actionSpan.textContent = t.actions[actionType] + multiplier;
+                    }
+                }
+            });
+        }
+
+        function updateItemSelect() {
+            const select = document.getElementById('item');
+            if (!select) return;
+            
+            const selectedValue = select.value;
+            const t = translations[currentLang];
+            
+            select.innerHTML = `<option value="">${t.selectItemPlaceholder}</option>`;
+            allRecipeOptions = [];
+            
+            Object.keys(t.items).forEach(key => {
+                const option = document.createElement('option');
+                option.value = key;
+                option.textContent = t.items[key];
+                if (key === selectedValue) option.selected = true;
+                select.appendChild(option);
+                allRecipeOptions.push({value: key, text: t.items[key]});
+            });
+        }
+
+        function filterRecipes() {
+            const searchTerm = document.getElementById('search').value.toLowerCase();
+            const select = document.getElementById('item');
+            const t = translations[currentLang];
+            
+            select.innerHTML = `<option value="">${t.selectItemPlaceholder}</option>`;
+            
+            allRecipeOptions.forEach(recipe => {
+                if (recipe.text.toLowerCase().includes(searchTerm)) {
+                    const option = document.createElement('option');
+                    option.value = recipe.value;
+                    option.textContent = recipe.text;
+                    select.appendChild(option);
+                }
+            });
+        }
+
+        function openCustomRecipe() {
+            document.getElementById('custom-recipe-card').style.display = 'block';
+            currentRecipe = {
+                finalSequence: [...customSequence],
+                actions: BASE_ACTIONS
+            };
+            displayRecipe();
+        }
+
+        function closeCustomRecipe() {
+            document.getElementById('custom-recipe-card').style.display = 'none';
+            document.getElementById('item').value = '';
+            loadRecipe();
+        }
+
+        function updateCustomRecipeInterface() {
+            const t = translations[currentLang];
+            const customCard = document.getElementById('custom-recipe-card');
+            if (customCard && customCard.style.display !== 'none') {
+                const h3Elements = customCard.querySelectorAll('h3');
+                if (h3Elements[0]) h3Elements[0].textContent = t.clickActions;
+                if (h3Elements[1]) h3Elements[1].textContent = t.finalSequence;
+                
+                const clearBtn = customCard.querySelector('button[onclick="clearSequence()"]');
+                if (clearBtn) clearBtn.textContent = t.clearSequence;
+                
+                const closeBtn = customCard.querySelector('button[onclick="closeCustomRecipe()"]');
+                if (closeBtn) closeBtn.textContent = t.close;
+                
+                const placeholder = customCard.querySelector('#sequence-builder span');
+                if (placeholder && customSequence.length === 0) {
+                    placeholder.textContent = t.clickToBuild;
+                }
+            }
+        }
+
+        function getIconHtml(icon, className = 'action-icon') {
+            if (icon.includes('.png') || icon.includes('.jpg') || icon.includes('.svg')) {
+                return `<div class="${className}"><img src="${icon}" alt="icon" onerror="this.parentElement.innerHTML='⚒'"></div>`;
+            } else {
+                return `<div class="${className}">${icon}</div>`;
+            }
+        }
+
+        function updateActionGrid() {
+            const grid = document.getElementById('action-grid');
+            if (!grid) return;
+            
+            grid.innerHTML = '';
+            
+            Object.keys(ACTIONS_ICONS).forEach(actionId => {
+                const btn = document.createElement('button');
+                btn.className = 'action-btn';
+                btn.onclick = () => addActionToSequence(actionId);
+                
+                const iconHtml = getIconHtml(ACTIONS_ICONS[actionId]);
+                btn.innerHTML = iconHtml;
+                
+                grid.appendChild(btn);
+            });
+        }
+
+        function addActionToSequence(actionId) {
+            customSequence.push(actionId);
+            updateSequenceBuilder();
+            
+            if (document.getElementById('custom-recipe-card').style.display !== 'none') {
+                currentRecipe = {
+                    finalSequence: [...customSequence],
+                    actions: BASE_ACTIONS
+                };
+                displayRecipe();
+            }
+        }
+
+        function loadRecipe() {
+            const selectedItem = document.getElementById('item').value;
+            
+            if (!selectedItem) {
+                currentRecipe = {};
+                const container = document.getElementById('recipe-container');
+                if (container) {
+                    container.innerHTML = `
+                        <p style="text-align: center; color: #666; padding: 40px;">
+                            ${translations[currentLang].selectItemFirst}
+                        </p>
+                    `;
+                }
+                return;
+            }
+            
+            currentRecipe = RECIPES[selectedItem];
+            displayRecipe();
+            const solutionCard = document.getElementById('solution-card');
+            if (solutionCard) solutionCard.style.display = 'none';
+        }
+
+        function clearSequence() {
+            customSequence = [];
+            updateSequenceBuilder();
+            
+            if (document.getElementById('custom-recipe-card').style.display !== 'none') {
+                currentRecipe = {
+                    finalSequence: [],
+                    actions: BASE_ACTIONS
+                };
+                displayRecipe();
+            }
+        }
+
+        function updateSequenceBuilder() {
+            const container = document.getElementById('sequence-builder');
+            if (!container) return;
+            
+            const t = translations[currentLang];
+            container.innerHTML = '';
+            
+            if (customSequence.length === 0) {
+                const placeholder = document.createElement('span');
+                placeholder.style.color = '#999';
+                placeholder.style.fontStyle = 'italic';
+                placeholder.textContent = t.clickToBuild;
+                container.appendChild(placeholder);
+                return;
+            }
+            
+            const grouped = groupSequentialActions(customSequence);
+            
+            grouped.forEach((group, groupIndex) => {
+                const item = document.createElement('div');
+                item.className = 'sequence-item';
+                
+                const iconHtml = getIconHtml(ACTIONS_ICONS[group.action]);
+                const multiplier = group.count > 1 ? `<span class="multiplier">×${group.count}</span>` : '';
+                
+                item.innerHTML = `
+                    ${iconHtml}
+                    <span>${t.actions[group.action]}${multiplier}</span>
+                    <button class="remove-btn" onclick="removeActionGroup(${groupIndex})">×</button>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function removeActionGroup(groupIndex) {
+            const grouped = groupSequentialActions(customSequence);
+            if (groupIndex < grouped.length) {
+                const group = grouped[groupIndex];
+                let removed = 0;
+                for (let i = customSequence.length - 1; i >= 0 && removed < group.count; i--) {
+                    if (customSequence[i] === group.action) {
+                        customSequence.splice(i, 1);
+                        removed++;
+                    }
+                }
+                updateSequenceBuilder();
+                
+                if (document.getElementById('custom-recipe-card').style.display !== 'none') {
+                    currentRecipe = {
+                        finalSequence: [...customSequence],
+                        actions: BASE_ACTIONS
+                    };
+                    displayRecipe();
+                }
+            }
+        }
+
+        function groupSequentialActions(sequence) {
+            if (!sequence || sequence.length === 0) return [];
+            
+            const grouped = [];
+            let currentAction = sequence[0];
+            let count = 1;
+            
+            for (let i = 1; i < sequence.length; i++) {
+                if (sequence[i] === currentAction) {
+                    count++;
+                } else {
+                    grouped.push({ action: currentAction, count: count });
+                    currentAction = sequence[i];
+                    count = 1;
+                }
+            }
+            grouped.push({ action: currentAction, count: count });
+            
+            return grouped;
+        }
+
+        function displayRecipe() {
+            const container = document.getElementById('recipe-container');
+            if (!container) return;
+            
+            const t = translations[currentLang];
+            container.innerHTML = '';
+            
+            Object.keys(ACTIONS_ICONS).forEach(actionId => {
+                const actionName = t.actions[actionId];
+                const icon = ACTIONS_ICONS[actionId];
+                const value = currentRecipe.actions[actionId];
+                
+                const item = document.createElement('div');
+                item.className = 'recipe-item';
+                
+                const iconHtml = getIconHtml(icon, 'recipe-icon');
+                
+                item.innerHTML = `
+                    <span style="display: flex; align-items: center;">${iconHtml}${actionName}</span>
+                    <span class="recipe-value ${value >= 0 ? 'positive' : 'negative'}">
+                        ${value >= 0 ? '+' : ''}${value}
+                    </span>
+                `;
+                container.appendChild(item);
+            });
+
+            if (currentRecipe.finalSequence && currentRecipe.finalSequence.length > 0) {
+                const finalDiv = document.createElement('div');
+                finalDiv.className = 'final-sequence-display';
+                finalDiv.style.marginTop = '20px';
+                finalDiv.style.padding = '15px';
+                finalDiv.style.background = '#e8f4fd';
+                finalDiv.style.borderRadius = '8px';
+                finalDiv.innerHTML = `<h4 style="color: #0c5460; margin-bottom: 10px;">${t.finalSequence}</h4>`;
+                
+                const grouped = groupSequentialActions(currentRecipe.finalSequence);
+                
+                grouped.forEach(group => {
+                    const span = document.createElement('span');
+                    span.style.display = 'inline-flex';
+                    span.style.alignItems = 'center';
+                    span.style.background = '#667eea';
+                    span.style.color = 'white';
+                    span.style.padding = '8px 12px';
+                    span.style.margin = '2px';
+                    span.style.borderRadius = '15px';
+                    span.style.fontSize = '14px';
+                    span.style.gap = '6px';
+                    
+                    const iconHtml = getIconHtml(ACTIONS_ICONS[group.action]);
+                    const multiplier = group.count > 1 ? `<span class="multiplier">×${group.count}</span>` : '';
+                    
+                    span.innerHTML = `${iconHtml}<span>${t.actions[group.action]}${multiplier}</span>`;
+                    finalDiv.appendChild(span);
+                });
+                
+                container.appendChild(finalDiv);
+            }
+        }
+
+        function findSolution() {
+            const item = document.getElementById('item').value;
+            const targetValue = parseInt(document.getElementById('target').value);
+            const isCustom = document.getElementById('custom-recipe-card').style.display !== 'none';
+            
+            if ((!item && !isCustom) || !targetValue || Object.keys(currentRecipe).length === 0) {
+                alert(translations[currentLang].fillAllFields);
+                return;
+            }
+
+            if (!currentRecipe.finalSequence || currentRecipe.finalSequence.length === 0) {
+                alert(translations[currentLang].addFinalActions);
+                return;
+            }
+
+            let finalSum = 0;
+            currentRecipe.finalSequence.forEach(actionId => {
+                finalSum += currentRecipe.actions[actionId];
+            });
+
+            const calculatedTarget = targetValue + (finalSum * -1);
+
+            let solution = findSolutionBFS(calculatedTarget);
+            if (!solution) {
+                solution = findSolutionGreedy(calculatedTarget);
+            }
+
+            if (solution) {
+                let currentPos = calculatedTarget;
+                const grouped = groupSequentialActions(currentRecipe.finalSequence);
+                
+                grouped.forEach(group => {
+                    const totalValue = currentRecipe.actions[group.action] * group.count;
+                    currentPos += totalValue;
+                    
+                    solution.steps.push({
+                        action: translations[currentLang].actions[group.action],
+                        icon: ACTIONS_ICONS[group.action],
+                        value: totalValue,
+                        count: group.count,
+                        total: currentPos,
+                        isFinal: true
+                    });
+                });
+            }
+
+            displaySolution(solution, targetValue, calculatedTarget, finalSum);
+        }
+
+        function findSolutionBFS(target, maxSteps = 10) {
+            if (Object.keys(currentRecipe).length === 0) return null;
+            
+            const queue = [{ position: 0, actions: [], steps: [] }];
+            const visited = new Set([0]);
+            
+            while (queue.length > 0) {
+                const current = queue.shift();
+                
+                if (current.position === target) {
+                    return { steps: current.steps };
+                }
+                
+                if (current.actions.length >= maxSteps) continue;
+                
+                Object.keys(ACTIONS_ICONS).forEach(actionId => {
+                    const newPosition = current.position + currentRecipe.actions[actionId];
+                    
+                    if (newPosition < -150 || newPosition > 150) return;
+                    if (visited.has(newPosition)) return;
+                    
+                    visited.add(newPosition);
+                    queue.push({
+                        position: newPosition,
+                        actions: [...current.actions, actionId],
+                        steps: [...current.steps, {
+                            action: translations[currentLang].actions[actionId],
+                            icon: ACTIONS_ICONS[actionId],
+                            value: currentRecipe.actions[actionId],
+                            count: 1,
+                            total: newPosition,
+                            isFinal: false
+                        }]
+                    });
+                });
+            }
+            
+            return null;
+        }
+        
+        function findSolutionGreedy(target, maxSteps = 15) {
+            let currentPosition = 0;
+            const steps = [];
+            
+            for (let i = 0; i < maxSteps && currentPosition !== target; i++) {
+                let bestAction = null;
+                let bestDistance = Math.abs(target - currentPosition);
+                
+                Object.keys(ACTIONS_ICONS).forEach(actionId => {
+                    const newPosition = currentPosition + currentRecipe.actions[actionId];
+                    const distance = Math.abs(target - newPosition);
+                    
+                    if (distance < bestDistance) {
+                        bestDistance = distance;
+                        bestAction = actionId;
+                    }
+                });
+                
+                if (!bestAction) break;
+                
+                currentPosition += currentRecipe.actions[bestAction];
+                steps.push({
+                    action: translations[currentLang].actions[bestAction],
+                    icon: ACTIONS_ICONS[bestAction],
+                    value: currentRecipe.actions[bestAction],
+                    count: 1,
+                    total: currentPosition,
+                    isFinal: false
+                });
+            }
+            
+            return { steps };
+        }
+        
+        function displaySolution(solution, targetValue, calculatedTarget, finalSum) {
+            const card = document.getElementById('solution-card');
+            const container = document.getElementById('solution-container');
+            if (!card || !container) return;
+            
+            const t = translations[currentLang];
+            
+            card.style.display = 'block';
+            container.innerHTML = '';
+            
+            if (!solution || solution.steps.length === 0) {
+                container.innerHTML = `<p style="text-align: center; padding: 20px;">${t.noSolution}</p>`;
+                return;
+            }
+            
+            const calcInfo = document.createElement('div');
+            calcInfo.style.background = '#e8f4fd';
+            calcInfo.style.border = '1px solid #bee5eb';
+            calcInfo.style.borderRadius = '8px';
+            calcInfo.style.padding = '15px';
+            calcInfo.style.marginBottom = '20px';
+            calcInfo.style.color = '#0c5460';
+            calcInfo.innerHTML = `
+                <strong>${t.calculation}</strong><br>
+                ${t.finalActions} ${finalSum} × (-1) = ${finalSum * -1}<br>
+                ${t.target} ${targetValue} + ${finalSum * -1} = ${calculatedTarget}
+            `;
+            container.appendChild(calcInfo);
+            
+            const info = document.createElement('div');
+            info.style.marginBottom = '20px';
+            info.innerHTML = `
+                <p><strong>${t.stepsCount}</strong> ${solution.steps.length}</p>
+                <p><strong>${t.calculatedTarget}</strong> ${calculatedTarget}</p>
+            `;
+            container.appendChild(info);
+            
+            const groupedSteps = [];
+            let i = 0;
+            while (i < solution.steps.length) {
+                const currentStep = solution.steps[i];
+                let count = 1;
+                let totalValue = currentStep.value;
+                
+
+                while (i + count < solution.steps.length && 
+                       solution.steps[i + count].icon === currentStep.icon &&
+                       solution.steps[i + count].isFinal === currentStep.isFinal) {
+                    totalValue += solution.steps[i + count].value;
+                    count++;
+                }
+                
+                groupedSteps.push({
+                    ...currentStep,
+                    count: count,
+                    value: totalValue,
+                    total: solution.steps[i + count - 1].total
+                });
+                
+                i += count;
+            }
+
+            groupedSteps.forEach((step, index) => {
+                const stepDiv = document.createElement('div');
+                stepDiv.className = step.isFinal ? 'step final-step' : 'step';
+                
+                const iconHtml = getIconHtml(step.icon, 'recipe-icon');
+                const multiplier = step.count > 1 ? `<span class="multiplier">×${step.count}</span>` : '';
+                
+                stepDiv.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <div class="step-number">${index + 1}</div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            ${iconHtml}
+                            <span>${step.action}${multiplier}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span class="recipe-value ${step.value >= 0 ? 'positive' : 'negative'}">
+                            ${step.value >= 0 ? '+' : ''}${step.value}
+                        </span>
+                        <span>→</span>
+                        <strong>${step.total}</strong>
+                    </div>
+                `;
+                container.appendChild(stepDiv);
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            updateInterface();
+        });
+    </script>
+</body>
+</html>
