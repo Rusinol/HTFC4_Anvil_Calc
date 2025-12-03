@@ -1,0 +1,10 @@
+Based on TFC Anvil Helper by absolutespiceball
+https://www.curseforge.com/minecraft/texture-packs/tfc-anvil-helper licensed under CC BY 4.0.
+
+Modified by owllovel (2025). 
+This derivative work is also licensed under CC BY 4.0.
+
+Modified for HTFC4 modpack suport by Rusin (2025). 
+This derivative work is also licensed under CC BY 4.0.
+
+License: https://creativecommons.org/licenses/by/4.0/
